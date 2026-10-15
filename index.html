@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LUNE STUDIO – Thời trang nam nữ tối giản</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Playfair+Display:wght@500;700&display=swap&subset=vietnamese" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{--bg:#f6f1e7;--fg:#2a2520;--mut:#6f655a;--card:#fffdf9;--ac:#7a5c3e;--acf:#fff;--ln:#e3d9c8;--ok:#2f6b3f;--bad:#a23b2f}
+:root:not([data-theme=light]){color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#1c1915;--fg:#f1ebdf;--mut:#b3a897;--card:#26221c;--ac:#d4b48a;--acf:#1c1915;--ln:#3a342b;color-scheme:dark}}
+:root[data-theme=dark]{--bg:#1c1915;--fg:#f1ebdf;--mut:#b3a897;--card:#26221c;--ac:#d4b48a;--acf:#1c1915;--ln:#3a342b;color-scheme:dark}
+[hidden]{display:none!important}
+*{box-sizing:border-box}html{scroll-padding-top:120px}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 'Be Vietnam Pro',system-ui,sans-serif;overflow-x:hidden}
+h1,h2,h3,.logo{font-family:'Playfair Display',Georgia,serif;font-weight:500;line-height:1.25}
+h2{font-size:1.7rem;margin:0 0 16px}h3{font-size:1.1rem;margin:4px 0}
+a{color:var(--ac)}button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+button{cursor:pointer;background:var(--ac);color:var(--acf);border:0;padding:9px 16px;border-radius:2px}
+button.g{background:transparent;color:var(--fg);border:1px solid var(--fg)}
+button:disabled{opacity:.45;cursor:not-allowed}
+input,select,textarea{background:var(--card);border:1px solid var(--ln);padding:8px 10px;border-radius:2px;max-width:100%}
+.top{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--ln)}
+.bar{display:flex;gap:10px;align-items:center;padding:10px 16px;max-width:1100px;margin:auto;flex-wrap:wrap}
+.logo{font-size:1.4rem;letter-spacing:.12em;text-decoration:none;color:var(--fg);margin-right:auto}
+#q{width:190px}
+#tabs{display:flex;overflow-x:auto;padding:0 16px;max-width:1100px;margin:auto;gap:4px}
+#tabs button{background:none;color:var(--mut);border-bottom:2px solid transparent;white-space:nowrap;border-radius:0;padding:10px 12px}
+#tabs button[aria-selected=true]{color:var(--fg);border-color:var(--ac);font-weight:600}
+main,#adm{max-width:1100px;margin:auto;padding:24px 16px 48px}
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:24px;align-items:center;padding:16px 0 32px}
+.hero h1{font-size:clamp(2rem,6vw,3.6rem);margin:0 0 12px}
+.hero svg{width:100%;max-height:380px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
+.card{background:var(--card);border:1px solid var(--ln);display:flex;flex-direction:column}
+.img{background:#efe6d6;aspect-ratio:5/6;display:flex;align-items:center;justify-content:center}
+.img svg,.img img{width:100%;height:100%;object-fit:cover}
+.bd{padding:12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.bd small,.mut{color:var(--mut)}.pr{font-weight:600;margin:0}
+.bd p{margin:0}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.bg{display:inline-block;font-size:.78rem;padding:1px 8px;border:1px solid var(--bad);color:var(--bad);width:fit-content}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chips button{background:var(--card);color:var(--fg);border:1px solid var(--ln)}.chips button.on{background:var(--ac);color:var(--acf)}
+section{margin-bottom:40px}
+table{border-collapse:collapse;width:100%}th,td{border:1px solid var(--ln);padding:8px;text-align:left}
+.sc{overflow-x:auto}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40}
+#dr{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--bg);z-index:50;padding:16px;overflow-y:auto;border-left:1px solid var(--ln)}
+#md{position:fixed;z-index:50;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,calc(100% - 32px));max-height:90vh;overflow:auto;background:var(--bg);padding:16px;border:1px solid var(--ln)}
+.ln{display:flex;gap:10px;justify-content:space-between;border-bottom:1px solid var(--ln);padding:10px 0;align-items:center}
+.ln div{min-width:0}.qty{display:flex;gap:6px;align-items:center}.qty button{padding:2px 10px}
+pre{white-space:pre-wrap;background:var(--card);border:1px solid var(--ln);padding:10px;font-size:.88rem;overflow-wrap:anywhere}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;z-index:60;max-width:calc(100% - 32px);border-radius:2px}
+.rv{border:1px solid var(--ln);background:var(--card);padding:12px}.st5{color:#b8862b}
+footer{border-top:1px solid var(--ln);padding-top:20px;display:grid;gap:6px}
+#adm details{border:1px solid var(--ln);margin-bottom:12px;padding:10px;background:var(--card)}
+#adm label{display:block;margin:8px 0 2px;font-size:.9rem}#adm input[type=text],#adm input:not([type]),#adm textarea{width:100%}
+.ar{display:grid;grid-template-columns:1fr 1fr;gap:6px;border-bottom:1px solid var(--ln);padding:8px 0}
+@media(max-width:700px){.hero{grid-template-columns:1fr}#q{width:100%;order:5}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="top"><div class="bar"><a class="logo" href="#">LUNE STUDIO</a>
+<input id="q" type="search" placeholder="Tìm sản phẩm…" aria-label="Tìm sản phẩm theo tên">
+<button id="cb" class="g">Giỏ hàng (<span id="cn">0</span>)</button><button id="th" class="g" aria-label="Đổi chế độ sáng/tối">◐</button></div>
+<nav id="tabs" role="tablist" aria-label="Điều hướng"></nav></header>
+<main id="main"></main><div id="adm" hidden></div>
+<div id="ov" hidden></div><aside id="dr" role="dialog" aria-modal="true" aria-label="Giỏ hàng" hidden></aside>
+<div id="md" role="dialog" aria-modal="true" aria-label="Chi tiết sản phẩm" hidden></div><div id="toast" role="status" hidden></div>
+<script>
+/* ===== CẤU HÌNH FIREBASE: dán thông tin của bạn vào đây (xem hướng dẫn) ===== */
+const FB={apiKey:"AIzaSyAothw83-layNgTaO9x0jWwah8BAZE0otk",authDomain:"lunestudio-c0ff3.firebaseapp.com",projectId:"lunestudio-c0ff3",appId:"1:399161909727:web:8bcb409898d49c2d87246a"};
+/* ============================================================================ */
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>(Number(n)||0).toLocaleString('vi-VN')+' VNĐ',URL_OK=u=>/^https?:\/\//.test(u||''),FORM_OK=u=>/^https:\/\/(docs\.google\.com\/forms\/|forms\.gle\/)/.test(u||'');
+const D=()=>({products:[
+['LS-001','Áo thun basic unisex','Áo thun','tee','#e9e2d3',159000,25,'Cotton 100% co giãn nhẹ, form rộng vừa, dễ phối với mọi loại quần.'],
+['LS-002','Áo sơ mi oversize','Áo sơ mi','shirt','#f4f1ea',229000,18,'Vải poplin mát, dáng rộng thoải mái, phong cách tối giản đi học đi làm.'],
+['LS-003','Áo polo nam nữ','Áo polo','polo','#2f2b27',199000,20,'Vải cá sấu thoáng khí, cổ bẻ gọn gàng, mặc được cả nam và nữ.'],
+['LS-004','Quần jeans ống rộng','Quần jeans','jeans','#6f8aa6',329000,15,'Denim dày vừa, ống rộng, cạp cao tôn dáng, phong cách dạo phố.'],
+['LS-005','Quần tây ống suông','Quần tây','pants','#4a423a',279000,12,'Vải tuyết mưa ít nhăn, ống suông thanh lịch, hợp môi trường công sở.'],
+['LS-006','Chân váy chữ A','Chân váy','skirt','#b89c7c',219000,16,'Chất liệu kaki mềm, dáng chữ A dài ngang gối, dễ mix với áo thun hoặc sơ mi.'],
+['LS-007','Váy maxi nữ','Váy maxi','maxi','#d8c7ad',359000,10,'Vải voan lót hai lớp, dáng dài nhẹ nhàng, thích hợp đi chơi và chụp ảnh.'],
+['LS-008','Áo khoác cardigan','Áo khoác','cardi','#a58a6a',299000,14,'Len dệt kim mềm, khoác ngoài ấm nhẹ, giữ phong cách tối giản.']
+].map((a,i)=>({id:a[0],name:a[1],sub:a[2],type:a[3],color:a[4],price:a[5],stock:a[6],desc:a[7],img:'',feat:i<4,best:[0,3,5].includes(i),isNew:i>=5})),
+cats:[{n:'Áo',s:['Áo thun','Áo sơ mi','Áo polo','Áo khoác']},{n:'Quần',s:['Quần jeans','Quần tây']},{n:'Váy',s:['Chân váy','Váy maxi']}],
+cols:[{n:'Basic hằng ngày',ids:['LS-001','LS-003','LS-004']},{n:'Thanh lịch đi làm',ids:['LS-002','LS-005','LS-008']},{n:'Dạo phố cuối tuần',ids:['LS-006','LS-007','LS-001']}],
+reviews:[['Nguyễn Minh Anh',5,'12/09/2026','Áo thun mặc rất mát, vải dày dặn, giặt vài lần vẫn không bị xù lông.'],['Trần Gia Bảo',4,'18/09/2026','Quần jeans ống rộng đứng form đẹp, giá sinh viên chấp nhận được.'],['Lê Thu Hà',5,'25/09/2026','Váy maxi nhẹ và mềm, đóng gói cẩn thận, shop gọi xác nhận rất lịch sự.'],['Phạm Quốc Huy',5,'01/10/2026','Sơ mi oversize mặc đi học hợp lắm, chất liệu không bị nhăn nhiều.'],['Võ Ngọc Linh',4,'05/10/2026','Chân váy chữ A vừa vặn, màu đúng như hình, giao hàng nhanh.'],['Đặng Khánh Vy',5,'10/10/2026','Cardigan ấm vừa phải, dễ phối đồ, mình sẽ ủng hộ shop tiếp.']].map(a=>({n:a[0],s:a[1],d:a[2],t:a[3],sample:true})),
+set:{form:'',entry:'',phone:'',email:'',addr:'',hours:'',fb:'',ig:'',tt:'',banner:'',
+story:'LUNE STUDIO bắt đầu từ mong muốn đơn giản: giúp các bạn trẻ mặc đẹp mà không phải tốn quá nhiều tiền. Chúng mình chọn những món cơ bản, dễ phối và bền để bạn tự tin mỗi ngày.',
+mission:'Mang đến thời trang tối giản, chất liệu tốt, giá hợp lý cho học sinh, sinh viên.',vision:'Trở thành thương hiệu thời trang trẻ được tin chọn nhờ sự tinh gọn và chân thành.',values:'Tối giản – Chân thành – Dễ phối – Giá hợp lý',
+members:[{mssv:'',name:'',role:''},{mssv:'',name:'',role:''}]}});
+let S=D(),user=null,db=null,auth=null,tab='home',q='',fc='',fs='',dv='cart',sel={},cart=[],oid='',orders=[];
+const newId=()=>'DH-'+Date.now().toString(36).toUpperCase().slice(-4)+Math.random().toString(36).slice(2,5).toUpperCase();
+try{cart=JSON.parse(localStorage.getItem('ls_cart')||'[]')}catch(e){cart=[]};oid=newId();
+const saveCart=()=>{try{localStorage.setItem('ls_cart',JSON.stringify(cart))}catch(e){}};
+let tt;const toast=m=>{const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,3200)};
+const P=id=>S.products.find(p=>p.id===id);
+/* ---------- Ảnh SVG ---------- */
+const SH={tee:'M60 40L85 30Q100 48 115 30L140 40L175 85L152 100L140 88V200H60V88L48 100L25 85Z',shirt:'M60 40L85 30Q100 48 115 30L140 40L175 85L152 100L140 88V210H60V88L48 100L25 85Z',polo:'M60 40L85 30Q100 48 115 30L140 40L175 85L152 100L140 88V200H60V88L48 100L25 85Z',cardi:'M58 40L85 30Q100 40 115 30L142 40L178 100L155 112L142 95V215H58V95L45 112L22 100Z',jeans:'M62 30H138L150 218H108L100 95L92 218H50Z',pants:'M58 30H142L158 218H108L100 85L92 218H42Z',skirt:'M72 50H128L168 195H32Z',maxi:'M76 28L90 28L100 46L110 28L124 28L130 90L168 224H32L70 90Z'};
+const DT={shirt:'M100 46V210M85 30L100 60L115 30',polo:'M85 30L100 62L115 30M100 62V100',cardi:'M100 40V215',skirt:'M72 50H128',maxi:'M70 90H130',jeans:'M62 30H138M100 30V95',pants:'M58 30H142M100 30V85',tee:'M85 30Q100 48 115 30'};
+const art=p=>p.img?`<img src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy">`:`<svg viewBox="0 0 200 250" role="img" aria-label="${esc(p.name)}"><path d="${SH[p.type]||SH.tee}" fill="${esc(p.color||'#ddd')}" stroke="#2a2520" stroke-width="2" stroke-linejoin="round"/><path d="${DT[p.type]||''}" fill="none" stroke="#2a2520" stroke-width="1.5" opacity=".6"/></svg>`;
+const bannerArt=()=>S.set.banner?`<img src="${esc(S.set.banner)}" alt="Banner LUNE STUDIO" style="max-height:380px;object-fit:cover">`:`<svg viewBox="0 0 300 380" role="img" aria-label="Hai người mặc trang phục tối giản"><rect width="300" height="380" fill="#e9dfcd"/><circle cx="150" cy="190" r="130" fill="#f6f1e7"/><g stroke="#2a2520" stroke-width="2" stroke-linejoin="round"><circle cx="105" cy="105" r="22" fill="#e8c9a6"/><path d="M80 135H130L138 250H72Z" fill="#fff"/><path d="M72 250H138L146 345H108L105 285L102 345H64Z" fill="#6f8aa6"/><circle cx="200" cy="100" r="22" fill="#e8c9a6"/><path d="M178 130H222L228 190L250 330H150L172 190Z" fill="#b89c7c"/><path d="M200 130V330" fill="none"/></g></svg>`;
+/* ---------- Dữ liệu ---------- */
+async function load(){try{if(FB.apiKey&&typeof firebase!=='undefined'){firebase.initializeApp(FB);auth=firebase.auth();db=firebase.firestore();auth.onAuthStateChanged(u=>{user=u;if(location.hash==='#admin')admin()});const s=await db.doc('site/main').get();if(s.exists){const d=s.data();S={...S,...d,set:{...S.set,...(d.set||{})}}}}}catch(e){console.warn(e)};cart=cart.filter(c=>P(c.id));route()}
+const save=async()=>{if(!db||!user)return toast('Chưa đăng nhập hoặc chưa cấu hình Firebase.');try{await db.doc('site/main').set(JSON.parse(JSON.stringify(S)));toast('Đã lưu thay đổi.')}catch(e){toast('Lưu lỗi: '+e.message)}};
+/* ---------- Giao diện khách ---------- */
+const TABS=[['home','Trang chủ'],['products','Sản phẩm'],['cols','Bộ sưu tập'],['how','Cách đặt hàng'],['about','Về chúng tôi'],['rev','Phản hồi'],['contact','Liên hệ']];
+const V=x=>x?esc(x):'<span class="mut">Chưa cập nhật</span>';
+function drawTabs(){$('#tabs').innerHTML=TABS.map(t=>`<button role="tab" id="t-${t[0]}" aria-selected="${tab===t[0]}" tabindex="${tab===t[0]?0:-1}" data-t="${t[0]}">${t[1]}</button>`).join('')}
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b)go(b.dataset.t)});
+$('#tabs').addEventListener('keydown',e=>{const i=TABS.findIndex(t=>t[0]===tab);let n=i;if(e.key==='ArrowRight')n=(i+1)%TABS.length;else if(e.key==='ArrowLeft')n=(i+TABS.length-1)%TABS.length;else if(e.key==='Home')n=0;else if(e.key==='End')n=TABS.length-1;else return;e.preventDefault();go(TABS[n][0]);$('#t-'+TABS[n][0]).focus()});
+const go=t=>{tab=t;if(location.hash==='#admin')location.hash='';render();scrollTo(0,0)};
+const stk=p=>p.stock<1?'<span class="bg">Hết hàng</span>':p.stock<=8?'<span class="bg">Sắp hết</span>':'';
+const card=p=>`<article class="card"><div class="img">${art(p)}</div><div class="bd"><small>${esc(p.id)} · ${esc(p.sub)}</small><h3>${esc(p.name)}</h3><p class="pr">${fmt(p.price)}</p><p>Tồn kho: <b>${p.stock}</b> ${stk(p)}</p><p class="mut">${esc(p.desc)}</p>
+<select aria-label="Chọn size" onchange="sel['${esc(p.id)}']=this.value"><option value="">Chọn size</option>${['S','M','L','XL'].map(s=>`<option ${sel[p.id]===s?'selected':''}>${s}</option>`).join('')}</select>
+<div class="row"><button ${p.stock<1?'disabled':''} onclick="add('${esc(p.id)}')">Thêm vào giỏ</button><button class="g" onclick="detail('${esc(p.id)}')">Xem chi tiết</button></div></div></article>`;
+const grid=l=>l.length?`<div class="grid">${l.map(card).join('')}</div>`:'<p>Không tìm thấy sản phẩm phù hợp.</p>';
+const revs=n=>S.reviews.length?`<div class="grid">${S.reviews.slice(0,n).map(r=>`<div class="rv"><b>${esc(r.n)}</b> <span class="st5" aria-label="${r.s} sao">${'★'.repeat(r.s)}${'☆'.repeat(5-r.s)}</span><p>${esc(r.t)}</p><small class="mut">${esc(r.d)}${r.sample?' · Nội dung minh hoạ cho bài tập, không phải phản hồi của khách hàng thật':''}</small></div>`).join('')}</div>`:`<p>Chưa có phản hồi nào được đăng.</p>${FORM_OK(S.set.form)?`<a href="${esc(S.set.form)}" target="_blank" rel="noopener noreferrer">Gửi phản hồi</a>`:''}`;
+const soc=()=>[['fb','Facebook'],['ig','Instagram'],['tt','TikTok']].filter(x=>URL_OK(S.set[x[0]])).map(x=>`<a href="${esc(S.set[x[0]])}" target="_blank" rel="noopener noreferrer">${x[1]}</a>`).join(' · ');
+const info=()=>`<p>Điện thoại: ${V(S.set.phone)}</p><p>Email: ${V(S.set.email)}</p><p>Địa chỉ: ${V(S.set.addr)}</p><p>Giờ làm việc: ${V(S.set.hours)}</p>${soc()?`<p>${soc()}</p>`:''}`;
+function render(){applyBg();drawTabs();const s=S.set,L=S.products;let h='';
+if(tab==='home'){h=`<div class="hero"><div><h1>Mặc chất riêng – Tự tin mỗi ngày</h1><p class="mut">Thời trang nam nữ tối giản, dễ phối, giá hợp lý cho người trẻ.</p><button onclick="go('products')">Xem sản phẩm</button></div>${bannerArt()}</div>`+
+[['Sản phẩm nổi bật','feat'],['Bán chạy','best'],['Bộ sưu tập mới','isNew']].map(x=>{const l=L.filter(p=>p[x[1]]);return l.length?`<section><h2>${x[0]}</h2>${grid(l.slice(0,4))}</section>`:''}).join('')+`<section><h2>Phản hồi mới nhất</h2>${revs(3)}</section>`}
+if(tab==='products'){const subs=(S.cats.find(c=>c.n===fc)||{s:[]}).s;let l=L.filter(p=>(!fc||S.cats.find(c=>c.n===fc).s.includes(p.sub))&&(!fs||p.sub===fs)&&p.name.toLowerCase().includes(q.toLowerCase()));
+h=`<h2>Sản phẩm</h2><div class="chips"><button class="${fc?'':'on'}" onclick="fc='';fs='';render()">Tất cả</button>${S.cats.map(c=>`<button class="${fc===c.n?'on':''}" onclick="fc='${esc(c.n)}';fs='';render()">${esc(c.n)}</button>`).join('')}</div>${subs.length?`<div class="chips">${subs.map(x=>`<button class="${fs===x?'on':''}" onclick="fs='${esc(x)}';render()">${esc(x)}</button>`).join('')}</div>`:''}${grid(l)}`}
+if(tab==='cols')h='<h2>Bộ sưu tập</h2>'+S.cols.map(c=>`<section><h3>${esc(c.n)}</h3>${grid((c.ids||[]).map(P).filter(Boolean))}</section>`).join('');
+if(tab==='how')h=`<h2>Cách đặt hàng</h2><ol><li><b>Chọn món:</b> chọn size rồi bấm “Thêm vào giỏ”.</li><li><b>Mở giỏ hàng:</b> kiểm tra số lượng, bấm “Tiến hành thanh toán”.</li><li><b>Điền Google Form:</b> dán nội dung đơn (đã được sao chép sẵn), điền thông tin nhận hàng và bấm Gửi.</li></ol><p>Website không có thanh toán trực tuyến. Shop sẽ gọi điện xác nhận đơn, và tồn kho được cập nhật sau khi shop xác nhận.</p>`;
+if(tab==='about')h=`<h2>Về chúng tôi</h2><h3>Câu chuyện</h3><p>${esc(s.story)}</p><h3>Sứ mệnh</h3><p>${esc(s.mission)}</p><h3>Tầm nhìn</h3><p>${esc(s.vision)}</p><h3>Giá trị cốt lõi</h3><p>${esc(s.values)}</p><h2 style="margin-top:32px">Thành viên thực hiện</h2><div class="sc"><table><tr><th>STT</th><th>MSSV</th><th>Họ và tên</th><th>Vai trò</th></tr>${s.members.map((m,i)=>`<tr><td>${i+1}</td><td>${esc(m.mssv)}</td><td>${esc(m.name)}</td><td>${esc(m.role)}</td></tr>`).join('')}</table></div>`;
+if(tab==='rev')h=`<h2>Phản hồi khách hàng</h2>${revs(99)}`;
+if(tab==='contact')h=`<h2>Liên hệ</h2>${info()}`;
+$('#main').innerHTML=h+`<footer style="margin-top:40px"><b>LUNE STUDIO</b>${info()}<small class="mut">Chính sách: shop gọi xác nhận đơn trước khi giao. Website chỉ lưu đơn, không thanh toán trực tuyến. <a href="#admin">Quản trị</a></small></footer>`;
+$('#cn').textContent=cart.reduce((a,c)=>a+c.q,0)}
+$('#q').oninput=e=>{q=e.target.value;tab='products';render()};
+$('#th').onclick=()=>{if(S.set.bgc||S.set.bgi)return toast('Shop đang dùng nền tuỳ chỉnh nên giữ chế độ sáng.');const r=document.documentElement,d=r.dataset.theme==='dark'||(!r.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches);r.dataset.theme=d?'light':'dark'};
+/* ---------- Giỏ hàng ---------- */
+function add(id){const p=P(id),z=sel[id];if(!z)return toast('Hãy chọn size trước khi thêm vào giỏ.');const t=cart.filter(c=>c.id===id).reduce((a,c)=>a+c.q,0);if(t>=p.stock)return toast('Đã đạt số lượng tồn kho tối đa của sản phẩm này.');const l=cart.find(c=>c.id===id&&c.z===z);l?l.q++:cart.push({id,z,q:1});saveCart();render();toast('Đã thêm vào giỏ hàng.')}
+function chg(i,d){const c=cart[i],p=P(c.id),t=cart.filter(x=>x.id===c.id).reduce((a,x)=>a+x.q,0);if(d>0&&t>=p.stock)return toast('Đã đạt giới hạn tồn kho.');c.q+=d;if(c.q<1)cart.splice(i,1);saveCart();render();drawer()}
+const total=()=>cart.reduce((a,c)=>a+c.q*P(c.id).price,0);
+const orderText=()=>`ĐƠN HÀNG LUNE STUDIO\nMã đơn: ${oid}\n`+cart.map(c=>{const p=P(c.id);return`- ${p.name} (size ${c.z}) x${c.q} = ${fmt(p.price*c.q)}`}).join('\n')+`\nTổng cộng: ${fmt(total())}`;
+async function copy(){try{await navigator.clipboard.writeText(orderText());toast('Đã sao chép nội dung đơn hàng.');return true}catch(e){toast('Không sao chép được. Hãy bôi đen và sao chép thủ công.');return false}}
+function drawer(v){if(v)dv=v;const d=$('#dr');d.hidden=$('#ov').hidden=false;let h=`<div class="ln"><h2 style="margin:0">${dv==='cart'?'Giỏ hàng':'Xác nhận đơn hàng'}</h2><button class="g" id="x">Đóng</button></div>`;
+if(!cart.length)h+='<p>Giỏ hàng đang trống.</p>';else if(dv==='cart')h+=cart.map((c,i)=>{const p=P(c.id);return`<div class="ln"><div><b>${esc(p.name)}</b><br><small class="mut">Size ${c.z} · ${fmt(p.price)}</small><br>${fmt(p.price*c.q)}</div><div class="qty"><button class="g" aria-label="Giảm" onclick="chg(${i},-1)">−</button>${c.q}<button class="g" aria-label="Tăng" onclick="chg(${i},1)">+</button><button class="g" aria-label="Xoá" onclick="chg(${i},-c.q)">Xoá</button></div></div>`}).join('')+`<p><b>Tổng cộng: ${fmt(total())}</b></p><div class="row"><button class="g" onclick="copy()">Sao chép đơn hàng</button><button onclick="drawer('ck')">Tiến hành thanh toán</button></div>`;
+else h+=cart.map(c=>`<div class="ln"><div>${esc(P(c.id).name)} (size ${c.z}) x${c.q}</div><div>${fmt(P(c.id).price*c.q)}</div></div>`).join('')+`<p><b>Tổng cộng: ${fmt(total())}</b></p><pre>${esc(orderText())}</pre><p class="mut">Tồn kho được cập nhật sau khi shop xác nhận đơn qua điện thoại. Website chỉ lưu đơn; thanh toán và xác nhận do shop xử lý qua Google Form và điện thoại.</p><div class="row"><button class="g" onclick="copy()">Sao chép đơn hàng</button><button class="g" onclick="drawer('cart')">Quay lại giỏ</button><button onclick="checkout()">Xác nhận và mở Google Form</button></div>`;
+d.innerHTML=h;$('#x').onclick=closeAll;$('#x').focus()}
+async function checkout(){const f=S.set.form;if(!FORM_OK(f))return toast('Chủ shop chưa gắn link Google Form.');const txt=orderText(),id=oid;let u=f;if(S.set.entry&&/^entry\.\d+$/.test(S.set.entry)&&f.includes('docs.google.com'))u+=(f.includes('?')?'&':'?')+S.set.entry+'='+encodeURIComponent(txt);
+const items=cart.map(c=>({id:c.id,name:P(c.id).name,size:c.z,qty:c.q,price:P(c.id).price})),tot=total();
+const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener noreferrer';document.body.appendChild(a);a.click();a.remove();
+try{await navigator.clipboard.writeText(txt)}catch(e){}
+try{if(!db)throw 0;await db.collection('orders').doc(id).set({id,items,total:tot,status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()})}catch(e){toast('Chưa lưu được đơn vào hệ thống, nhưng bạn vẫn có thể điền form.')}
+oid=newId();cart=[];saveCart();closeAll();render();toast('Hãy điền và nhấn Gửi trong Google Form để hoàn tất đặt hàng.')}
+function detail(id){const p=P(id),m=$('#md');m.hidden=$('#ov').hidden=false;m.innerHTML=`<div class="ln"><h2 style="margin:0">${esc(p.name)}</h2><button class="g" id="x2">Đóng</button></div><div class="img" style="max-height:320px;aspect-ratio:auto;height:300px">${art(p)}</div><p><small class="mut">${esc(p.id)} · ${esc(p.sub)}</small></p><p><b>${fmt(p.price)}</b> · Tồn kho: ${p.stock} ${stk(p)}</p><p>${esc(p.desc)}</p><p class="mut">Size có sẵn: S, M, L, XL.</p>`;$('#x2').onclick=closeAll;$('#x2').focus()}
+function closeAll(){$('#dr').hidden=$('#md').hidden=$('#ov').hidden=true}
+$('#ov').onclick=closeAll;$('#cb').onclick=()=>drawer('cart');document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});
+/* ---------- Trang quản trị (#admin) ---------- */
+const route=()=>{const a=location.hash==='#admin';$('#adm').hidden=!a;$('#main').hidden=a;if(a)admin();else render()};addEventListener('hashchange',route);
+async function admin(){const A=$('#adm');if(!db)return A.innerHTML='<h2>Quản trị</h2><p>Chưa cấu hình Firebase trong file index.html.</p><a href="#">Về trang chủ</a>';
+if(!user)return A.innerHTML=`<h2>Đăng nhập quản trị</h2><label>Số điện thoại admin<br><input id="em" type="tel" inputmode="numeric" autocomplete="username"></label><label>Mật khẩu<br><input id="pw" type="password"></label><p><button id="li">Đăng nhập</button> <a href="#">Về trang chủ</a></p>`,$('#li').onclick=()=>auth.signInWithEmailAndPassword($('#em').value.replace(/\D/g,'')+'@lunestudio.vn',$('#pw').value).catch(e=>toast('Sai số điện thoại hoặc mật khẩu.'));
+try{const o=await db.collection('orders').orderBy('createdAt','desc').limit(30).get();orders=o.docs.map(d=>d.data())}catch(e){orders=[]}
+const s=S.set,F=[['form','Link Google Form (https://docs.google.com/forms/… hoặc https://forms.gle/…)'],['entry','Mã ô “Đơn hàng” điền sẵn (ví dụ entry.123456, không bắt buộc)'],['phone','Số điện thoại'],['email','Email'],['addr','Địa chỉ'],['hours','Giờ làm việc'],['fb','Link Facebook'],['ig','Link Instagram'],['tt','Link TikTok']];
+const tx=(k,l)=>`<label>${l}<br><input value="${esc(s[k])}" oninput="S.set['${k}']=this.value"></label>`;
+$('#adm').innerHTML=`<h2>Quản trị LUNE STUDIO</h2><p><button id="sv">Lưu tất cả</button> <button class="g" onclick="auth.signOut()">Đăng xuất</button> <a href="#">Về trang chủ</a></p>
+<details open><summary><b>Cài đặt shop</b></summary>${F.map(f=>tx(f[0],f[1])).join('')}<label>Ảnh banner (tuỳ chọn)<br><input type="file" accept="image/*" onchange="pick(this,d=>{S.set.banner=d})"></label><label>Màu nền trang<br><input type="color" value="${esc(s.bgc||'#f6f1e7')}" oninput="S.set.bgc=this.value;applyBg()"> <button class="g" onclick="S.set.bgc='';S.set.bgi='';applyBg();admin()">Bỏ màu/ảnh nền</button></label><label>Ảnh nền (tuỳ chọn)<br><input type="file" accept="image/*" onchange="pick(this,d=>{S.set.bgi=d;applyBg()},1280)"></label><label>Câu chuyện<textarea rows="3" oninput="S.set.story=this.value">${esc(s.story)}</textarea></label><label>Sứ mệnh<textarea rows="2" oninput="S.set.mission=this.value">${esc(s.mission)}</textarea></label><label>Tầm nhìn<textarea rows="2" oninput="S.set.vision=this.value">${esc(s.vision)}</textarea></label><label>Giá trị cốt lõi<textarea rows="2" oninput="S.set.values=this.value">${esc(s.values)}</textarea></label></details>
+<details><summary><b>Thành viên (mỗi dòng: MSSV|Họ tên|Vai trò)</b></summary><textarea id="mem" rows="5">${esc(s.members.map(m=>[m.mssv,m.name,m.role].join('|')).join('\n'))}</textarea></details>
+<details open><summary><b>Sản phẩm</b></summary>${S.products.map((p,i)=>`<div class="ar"><div><b>${esc(p.id)}</b> <button class="g" onclick="if(confirm('Xoá sản phẩm này?')){S.products.splice(${i},1);admin()}">Xoá</button></div><div></div>
+<label>Tên<input value="${esc(p.name)}" oninput="S.products[${i}].name=this.value"></label><label>Danh mục con<input value="${esc(p.sub)}" oninput="S.products[${i}].sub=this.value"></label>
+<label>Giá (VNĐ)<input type="number" value="${p.price}" oninput="S.products[${i}].price=+this.value"></label><label>Tồn kho<input type="number" value="${p.stock}" oninput="S.products[${i}].stock=+this.value"></label>
+<label style="grid-column:1/-1">Mô tả<textarea rows="2" oninput="S.products[${i}].desc=this.value">${esc(p.desc)}</textarea></label>
+<label><input type="checkbox" ${p.feat?'checked':''} onchange="S.products[${i}].feat=this.checked"> Nổi bật</label><label><input type="checkbox" ${p.best?'checked':''} onchange="S.products[${i}].best=this.checked"> Bán chạy</label><label><input type="checkbox" ${p.isNew?'checked':''} onchange="S.products[${i}].isNew=this.checked"> Mới</label>
+<label>Ảnh thật (chọn file)<input type="file" accept="image/*" onchange="pick(this,d=>{S.products[${i}].img=d})"></label><label style="grid-column:1/-1">Hoặc dán ảnh: bấm vào ô rồi nhấn Ctrl+V<textarea rows="1" placeholder="Dán ảnh vào đây" onpaste="pasteImg(event,${i})"></textarea></label><button class="g" onclick="S.products[${i}].img='';toast('Đã bỏ ảnh thật, bấm Lưu tất cả.')">Dùng lại ảnh vẽ</button></div>`).join('')}<button onclick="S.products.push({id:'LS-'+String(S.products.length+1).padStart(3,'0'),name:'Sản phẩm mới',sub:'Áo thun',type:'tee',color:'#e9e2d3',price:100000,stock:10,desc:'',img:'',feat:false,best:false,isNew:true});admin()">Thêm sản phẩm</button></details>
+<details><summary><b>Danh mục (mỗi dòng: Tên cấp 1: con1, con2)</b></summary><textarea id="cat" rows="4">${esc(S.cats.map(c=>c.n+': '+c.s.join(', ')).join('\n'))}</textarea></details>
+<details><summary><b>Bộ sưu tập (mỗi dòng: Tên: LS-001,LS-002)</b></summary><textarea id="col" rows="4">${esc(S.cols.map(c=>c.n+': '+c.ids.join(',')).join('\n'))}</textarea></details>
+<details><summary><b>Phản hồi (mỗi dòng: Tên|số sao|ngày|nội dung|mau hoặc thật)</b></summary><textarea id="rvs" rows="8">${esc(S.reviews.map(r=>[r.n,r.s,r.d,r.t,r.sample?'mau':'that'].join('|')).join('\n'))}</textarea></details>
+<details open><summary><b>Đơn hàng gần đây</b></summary>${orders.length?orders.map(o=>`<div class="ln"><div><b>${esc(o.id)}</b> · ${esc(o.status)}<br><small>${(o.items||[]).map(i=>esc(i.name)+' ('+esc(i.size)+') x'+i.qty).join('; ')}</small><br>${fmt(o.total)}</div>${o.status==='pending'?`<button onclick="okOrder('${esc(o.id)}')">Đã gọi xác nhận, trừ tồn</button>`:''}</div>`).join(''):'<p>Chưa có đơn hàng.</p>'}</details>`;
+$('#sv').onclick=()=>{S.set.members=$('#mem').value.split('\n').filter(x=>x.trim()).map(l=>{const a=l.split('|');return{mssv:a[0]||'',name:a[1]||'',role:a[2]||''}});
+S.cats=$('#cat').value.split('\n').filter(x=>x.includes(':')).map(l=>({n:l.split(':')[0].trim(),s:l.split(':')[1].split(',').map(x=>x.trim()).filter(Boolean)}));
+S.cols=$('#col').value.split('\n').filter(x=>x.includes(':')).map(l=>({n:l.split(':')[0].trim(),ids:l.split(':')[1].split(',').map(x=>x.trim()).filter(Boolean)}));
+S.reviews=$('#rvs').value.split('\n').filter(x=>x.trim()).map(l=>{const a=l.split('|');return{n:a[0],s:Math.min(5,Math.max(1,+a[1]||5)),d:a[2]||'',t:a[3]||'',sample:(a[4]||'').trim()!=='that'}});save()}}
+function applyBg(){const t=S.set,b=document.body;if(t.bgc||t.bgi){document.documentElement.dataset.theme='light';b.style.background=(t.bgi?`url("${t.bgi}") center/cover fixed `:'')+(t.bgc||'')}else b.style.background=''}
+function pasteImg(e,i){const f=[...e.clipboardData.items].find(x=>x.type.startsWith('image/'));if(!f)return toast('Không thấy ảnh trong clipboard.');e.preventDefault();pick({files:[f.getAsFile()]},d=>{S.products[i].img=d})}
+function pick(inp,cb,max){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,(max||640)/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',.75));toast('Đã chọn ảnh. Bấm “Lưu tất cả” để áp dụng.')};im.src=r.result};r.readAsDataURL(f)}
+async function okOrder(id){const o=orders.find(x=>x.id===id);if(!o)return;o.items.forEach(i=>{const p=P(i.id);if(p)p.stock=Math.max(0,p.stock-i.qty)});try{await db.collection('orders').doc(id).update({status:'confirmed'});await save();admin()}catch(e){toast('Lỗi: '+e.message)}}
+load();
+</script>
+</body>
+</html>
